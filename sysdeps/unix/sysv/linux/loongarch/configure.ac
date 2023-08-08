@@ -7,6 +7,8 @@ arch_minimum_kernel=5.19.0
 libc_cv_loongarch_int_abi=no
 AC_EGREP_CPP(4 8 8, [__SIZEOF_INT__ __SIZEOF_LONG__ __SIZEOF_POINTER__
   ], libc_cv_loongarch_int_abi=lp64)
+AC_EGREP_CPP(4 4 4, [__SIZEOF_INT__ __SIZEOF_LONG__ __SIZEOF_POINTER__
+  ], libc_cv_loongarch_int_abi=ilp32)
 if test $libc_cv_loongarch_int_abi = no; then
   AC_MSG_ERROR([Unable to determine integer ABI])
 fi
@@ -27,6 +29,12 @@ fi
 LIBC_CONFIG_VAR([default-abi], [$libc_cv_loongarch_int_abi$libc_cv_loongarch_float_abi])
 
 case $libc_cv_loongarch_int_abi$libc_cv_loongarch_float_abi in
+ilp32s)
+  LIBC_SLIBDIR_RTLDDIR([lib32/sf], [lib32])
+  ;;
+ilp32d)
+  LIBC_SLIBDIR_RTLDDIR([lib32], [lib32])
+  ;;
 lp64s)
   LIBC_SLIBDIR_RTLDDIR([lib64/sf], [lib64])
   ;;
