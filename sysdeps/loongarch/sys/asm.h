@@ -23,13 +23,13 @@
 #include <sysdeps/generic/sysdep.h>
 
 /* Macros to handle different pointer/register sizes for 32/64-bit code.  */
+#if __loongarch_grlen == 64
+#define PTRLOG 3
 #define SZREG 8
-#define SZFREG 8
-#define SZVREG 16
-#define SZXREG 32
 #define REG_L ld.d
 #define REG_S st.d
 #define SRLI srli.d
+#define SRAI srai.d
 #define SLLI slli.d
 #define ADDI addi.d
 #define ADD  add.d
@@ -38,6 +38,28 @@
 #define LI  li.d
 #define FREG_L fld.d
 #define FREG_S fst.d
+#elif __loongarch_grlen == 32
+#define PTRLOG 2
+#define SZREG 4
+#define REG_L ld.w
+#define REG_S st.w
+#define SRLI srli.w
+#define SRAI srai.w
+#define SLLI slli.w
+#define ADDI addi.w
+#define ADD  add.w
+#define SUB  sub.w
+#define BSTRINS  bstrins.w
+#define LI  li.w
+#define FREG_L fld.s
+#define FREG_S fst.s
+#else
+#error __loongarch_grlen must equal 32 or 64
+#endif
+
+#define SZFREG 8
+#define SZVREG 16
+#define SZXREG 32
 
 /* Declare leaf routine.  */
 #define LEAF(symbol) \

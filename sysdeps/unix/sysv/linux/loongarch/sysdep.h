@@ -34,9 +34,9 @@
 #undef PSEUDO
 #define PSEUDO(name, syscall_name, args) \
   ENTRY (name); \
-  li.d a7, SYS_ify (syscall_name); \
+  LI a7, SYS_ify (syscall_name); \
   syscall 0; \
-  li.d a7, -4096; \
+  LI a7, -4096; \
   bltu a7, a0, .Lsyscall_error##name;
 
 #undef PSEUDO_END
@@ -52,16 +52,16 @@
   .Lsyscall_error##name : la t0, rtld_errno; \
   sub.w a0, zero, a0; \
   st.w a0, t0, 0; \
-  li.d a0, -1;
+  LI a0, -1;
 
 #else
 
 #define SYSCALL_ERROR_HANDLER(name) \
   .Lsyscall_error##name : la.tls.ie t0, errno; \
-  add.d t0, tp, t0; \
+  ADD t0, tp, t0; \
   sub.w a0, zero, a0; \
   st.w a0, t0, 0; \
-  li.d a0, -1;
+  LI a0, -1;
 
 #endif
 #else
@@ -74,7 +74,7 @@
 #undef PSEUDO_NEORRNO
 #define PSEUDO_NOERRNO(name, syscall_name, args) \
   ENTRY (name); \
-  li.d a7, SYS_ify (syscall_name); \
+  LI a7, SYS_ify (syscall_name); \
   syscall 0;
 
 #undef PSEUDO_END_NOERRNO
@@ -85,11 +85,17 @@
 
 /* Performs a system call, returning the error code.  */
 #undef PSEUDO_ERRVAL
+#if __loongarch_grlen == 64
 #define PSEUDO_ERRVAL(name, syscall_name, args) \
   PSEUDO_NOERRNO (name, syscall_name, args); \
   slli.d a0, a0, 32; \
   srai.d a0, a0, 32; /* sign_ext */ \
   sub.d a0, zero, a0;
+#else
+#define PSEUDO_ERRVAL(name, syscall_name, args) \
+  PSEUDO_NOERRNO (name, syscall_name, args); \
+  sub.w a0, zero, a0;
+#endif
 
 #undef PSEUDO_END_ERRVAL
 #define PSEUDO_END_ERRVAL(name) END (name);
