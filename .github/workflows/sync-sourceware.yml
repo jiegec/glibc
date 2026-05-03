@@ -1,0 +1,28 @@
+name: Sync from Sourceware
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add sourceware remote
+        run: git remote add sourceware https://sourceware.org/git/glibc.git
+
+      - name: Fetch from sourceware
+        run: |
+          git fetch sourceware master
+          git fetch sourceware --tags
+
+      - name: Push to GitHub
+        run: |
+          git push origin sourceware/master:master
+          git push origin --tags
